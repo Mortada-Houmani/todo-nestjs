@@ -4,7 +4,7 @@ A full-stack productivity application that combines task management with the Pom
 
 ![Home Screenshot](screenshot.jpg)
 ![Login Screenshot](login.jpg)
-![Signup Screenshot](signup.jpg)
+![Signup Screenshot](singup.jpg)
 
 ## Features
 
