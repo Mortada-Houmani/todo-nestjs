@@ -4,6 +4,7 @@ import useDebounce from "./hooks/useDebounce";
 import PomodoroTimer from "./pomodoro.jsx";
 import "./ToDoList.css";
 import { Link, useNavigate } from 'react-router-dom';
+import { API_URL, getAuthHeaders } from "./services/api";
 
 function ToDoList() {
   const Navigate = useNavigate();
@@ -12,9 +13,8 @@ function ToDoList() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingText, setEditingText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const token = localStorage.getItem('token');
   useEffect(() => {
-    if (!token) {
+    if (!localStorage.getItem('token')) {
       Navigate('/login');
     }
   
@@ -31,12 +31,10 @@ function ToDoList() {
     try {
       
       const url = debouncedSearchQuery
-        ? `http://localhost:3000/tasks?query=${encodeURIComponent(debouncedSearchQuery)}`
-        : "http://localhost:3000/tasks";
+        ? `${API_URL}/tasks?query=${encodeURIComponent(debouncedSearchQuery)}`
+        : `${API_URL}/tasks`;
       const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: getAuthHeaders()
       });
       const data = await response.json();
       setTasks(data);
@@ -52,11 +50,9 @@ function ToDoList() {
   async function addTask() {
     if (newTask.trim() !== "") {
       try {
-        const response = await fetch("http://localhost:3000/tasks", {
+        const response = await fetch(`${API_URL}/tasks`, {
           method: "POST",
-          headers: { "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
-           },
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
           body: JSON.stringify({ text: newTask })
         });
         const task = await response.json();
@@ -70,10 +66,9 @@ function ToDoList() {
 
   async function deleteTask(id) {
     try {
-      await fetch(`http://localhost:3000/tasks/${id}`, { method: "DELETE" }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      await fetch(`${API_URL}/tasks/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
       });
       setTasks(tasks.filter(t => t.id !== id));
     } catch (error) {
@@ -84,11 +79,9 @@ function ToDoList() {
   async function saveEdit(index) {
     const task = tasks[index];
     try {
-      await fetch(`http://localhost:3000/tasks/${task.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", 
-          'Authorization': `Bearer ${token}`
-         },
+      await fetch(`${API_URL}/tasks/${task.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ text: editingText, completed: task.completed })
       });
       const updatedTasks = [...tasks];
@@ -103,11 +96,9 @@ function ToDoList() {
   async function toggleCompleted(index) {
     const task = tasks[index];
     try {
-      await fetch(`http://localhost:3000/tasks/${task.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", 
-          'Authorization': `Bearer ${token}`
-         },
+      await fetch(`${API_URL}/tasks/${task.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ text: task.text, completed: !task.completed })
       });
       const updatedTasks = [...tasks];

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 import axios from 'axios';
+import { API_URL } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const Login = () => {
 
   const [errors, setErrors] = useState({});
   const [rememberMe, setRememberMe] = useState(false);
+  const [infoMessage, setInfoMessage] = useState('');
+  const [canResendVerification, setCanResendVerification] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +52,17 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:3000/auth/login', {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+    setInfoMessage('');
+    setCanResendVerification(false);
+
+    axios.post(`${API_URL}/auth/login`, {
       email: formData.email,
       password: formData.password
     }).then(response => {
@@ -59,11 +72,29 @@ const Login = () => {
       
     }).catch(error => {
       if (error.response && error.response.data && error.response.data.message) {
-        setErrors({ form: error.response.data.message });
+        const message = error.response.data.message;
+        const normalized = Array.isArray(message) ? message[0] : message;
+        setErrors({ form: normalized });
+        setCanResendVerification(normalized === 'Please verify your email first');
       } else {
         setErrors({ form: 'An error occurred. Please try again.' });
-      }});
-   
+      }
+    });
+  };
+
+  const handleResendVerification = () => {
+    setInfoMessage('');
+
+    axios.post(`${API_URL}/auth/resend-verification`, {
+      email: formData.email
+    }).then((response) => {
+      setInfoMessage(response.data.message || 'Verification email sent successfully.');
+    }).catch((error) => {
+      const message = error.response?.data?.message;
+      setErrors({
+        form: Array.isArray(message) ? message[0] : message || 'Unable to resend verification email.'
+      });
+    });
   };
 
   return (
@@ -75,6 +106,9 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
+          {errors.form && <div className="auth-error-message">{errors.form}</div>}
+          {infoMessage && <div className="auth-success-message">{infoMessage}</div>}
+
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -107,6 +141,11 @@ const Login = () => {
           <button type="submit" className="submit-btn">
             Log In
           </button>
+          {canResendVerification && (
+            <button type="button" className="secondary-btn" onClick={handleResendVerification}>
+              Resend verification email
+            </button>
+          )}
         </form>
 
         <div className="login-footer">

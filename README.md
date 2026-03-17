@@ -10,20 +10,24 @@ A full-stack productivity application that combines task management with the Pom
 
 - Create, edit, and delete tasks
 - Pomodoro timer integration for focused work sessions
-- User authentication 
-
+- User authentication with JWT
+- Email verification system
+- Secure password hashing
+- RESTful API architecture
 
 ## Tech Stack
 
 **Frontend:**
 - React.js
-- React Router for navigation
-- CSS for styling
+- React Router
+- CSS
 
 **Backend:**
-- Express.js
-- JWT authentication for secure user sessions
-- SQLite for database management
+- NestJS
+- TypeORM
+- PostgreSQL (Neon)
+- JWT authentication
+- Nodemailer (email verification)
 
----# todo-nestjs
-# todo-nestjs
+---
+

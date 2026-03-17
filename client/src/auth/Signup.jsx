@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './SignUp.css';
+import './Signup.css';
 import axios from 'axios';
+import { API_URL } from '../services/api';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const SignUp = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,18 +60,35 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:3000/auth/register', {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+    setSuccessMessage('');
+
+    axios.post(`${API_URL}/auth/signup`, {
       fullName: formData.name,
       email: formData.email,
       password: formData.password
     })
-    .then(response => {
-      console.log('Form submitted:', formData);
-      navigate('/login');})
+    .then(() => {
+      setSuccessMessage('Account created. Check your email for the verification link before logging in.');
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
+    })
     .catch(error => {
-      console.error('There was an error!', error);
+      const message = error.response?.data?.message;
+      setErrors({
+        form: Array.isArray(message) ? message[0] : message || 'Unable to create account right now.'
+      });
     });
-    
   };
 
   return (
@@ -81,6 +100,9 @@ const SignUp = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="signup-form">
+          {successMessage && <div className="auth-success-message">{successMessage}</div>}
+          {errors.form && <div className="auth-error-message">{errors.form}</div>}
+
           <div className="form-group">
             <label htmlFor="name">Full Name</label>
             <input
@@ -143,7 +165,7 @@ const SignUp = () => {
         </form>
 
         <div className="signup-footer">
-          <p>Already have an account? <a href="/login">Log in</a></p>
+          <p>Already have an account? <Link to="/login">Log in</Link></p>
         </div>
       </div>
     </div>

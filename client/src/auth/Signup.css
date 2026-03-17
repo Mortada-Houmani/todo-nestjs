@@ -46,6 +46,26 @@
   gap: 20px;
 }
 
+.auth-error-message,
+.auth-success-message {
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.auth-error-message {
+  background: rgba(245, 87, 108, 0.15);
+  border: 1px solid rgba(245, 87, 108, 0.35);
+  color: #ffd5dc;
+}
+
+.auth-success-message {
+  background: rgba(106, 227, 168, 0.14);
+  border: 1px solid rgba(106, 227, 168, 0.35);
+  color: #d9ffe9;
+}
+
 .signup-footer {
   margin-top: 25px;
   text-align: center;
