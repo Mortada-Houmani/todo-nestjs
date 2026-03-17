@@ -2,9 +2,9 @@
 
 A full-stack productivity application that combines task management with the Pomodoro Technique to help users stay focused and organized.
 
-![Home Screenshot](screenshot.png)
-![Login Screenshot](login.png)
-![Signup Screenshot](signup.png)
+![Home Screenshot](screenshot.jpg)
+![Login Screenshot](login.jpg)
+![Signup Screenshot](signup.jpg)
 
 ## Features
 
