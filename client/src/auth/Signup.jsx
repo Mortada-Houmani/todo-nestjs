@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
-import axios from 'axios';
-import { API_URL } from '../services/api';
+import api from '../services/api';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -69,7 +68,7 @@ const SignUp = () => {
     setErrors({});
     setSuccessMessage('');
 
-    axios.post(`${API_URL}/auth/signup`, {
+    api.post('/auth/register', {
       fullName: formData.name,
       email: formData.email,
       password: formData.password

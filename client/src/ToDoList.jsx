@@ -4,7 +4,7 @@ import useDebounce from "./hooks/useDebounce";
 import PomodoroTimer from "./pomodoro.jsx";
 import "./ToDoList.css";
 import { Link, useNavigate } from 'react-router-dom';
-import { API_URL, getAuthHeaders } from "./services/api";
+import api from "./services/api";
 
 function ToDoList() {
   const Navigate = useNavigate();
@@ -29,15 +29,9 @@ function ToDoList() {
 
   async function fetchTasks() {
     try {
-      
-      const url = debouncedSearchQuery
-        ? `${API_URL}/tasks?query=${encodeURIComponent(debouncedSearchQuery)}`
-        : `${API_URL}/tasks`;
-      const response = await fetch(url, {
-        headers: getAuthHeaders()
-      });
-      const data = await response.json();
-      setTasks(data);
+      const params = debouncedSearchQuery ? { query: debouncedSearchQuery } : {};
+      const response = await api.get('/tasks', { params });
+      setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
@@ -50,13 +44,8 @@ function ToDoList() {
   async function addTask() {
     if (newTask.trim() !== "") {
       try {
-        const response = await fetch(`${API_URL}/tasks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-          body: JSON.stringify({ text: newTask })
-        });
-        const task = await response.json();
-        setTasks([...tasks, task]);
+        const response = await api.post('/tasks', { text: newTask });
+        setTasks([...tasks, response.data]);
         setNewTask("");
       } catch (error) {
         console.error("Error adding task:", error);
@@ -66,10 +55,7 @@ function ToDoList() {
 
   async function deleteTask(id) {
     try {
-      await fetch(`${API_URL}/tasks/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
+      await api.delete(`/tasks/${id}`);
       setTasks(tasks.filter(t => t.id !== id));
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -79,11 +65,7 @@ function ToDoList() {
   async function saveEdit(index) {
     const task = tasks[index];
     try {
-      await fetch(`${API_URL}/tasks/${task.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify({ text: editingText, completed: task.completed })
-      });
+      await api.patch(`/tasks/${task.id}`, { text: editingText, completed: task.completed });
       const updatedTasks = [...tasks];
       updatedTasks[index].text = editingText;
       setTasks(updatedTasks);
@@ -96,11 +78,7 @@ function ToDoList() {
   async function toggleCompleted(index) {
     const task = tasks[index];
     try {
-      await fetch(`${API_URL}/tasks/${task.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify({ text: task.text, completed: !task.completed })
-      });
+      await api.patch(`/tasks/${task.id}`, { text: task.text, completed: !task.completed });
       const updatedTasks = [...tasks];
       updatedTasks[index].completed = !updatedTasks[index].completed;
       setTasks(updatedTasks);
@@ -108,6 +86,7 @@ function ToDoList() {
       console.error("Error toggling task:", error);
     }
   }
+
 
   function moveTaskUp(index) {
     if (index > 0) {

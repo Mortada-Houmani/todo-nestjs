@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { Link, useSearchParams } from 'react-router-dom';
 import './Login.css';
-import { API_URL } from '../services/api';
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
@@ -18,8 +17,8 @@ const VerifyEmail = () => {
       return;
     }
 
-    axios
-      .get(`${API_URL}/auth/verify-email`, { params: { token } })
+    api
+      .get(`/auth/verify-email`, { params: { token } })
       .then((response) => {
         setStatus('success');
         setMessage(response.data.message || 'Email verified successfully.');

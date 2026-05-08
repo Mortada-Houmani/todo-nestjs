@@ -21,11 +21,6 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  @Post('signup')
-  async signup(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
-  }
-
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto) {

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
-import axios from 'axios';
-import { API_URL } from '../services/api';
-
+import api from '../services/api';
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -62,7 +60,7 @@ const Login = () => {
     setInfoMessage('');
     setCanResendVerification(false);
 
-    axios.post(`${API_URL}/auth/login`, {
+    api.post('/auth/login', {
       email: formData.email,
       password: formData.password
     }).then(response => {
@@ -85,7 +83,7 @@ const Login = () => {
   const handleResendVerification = () => {
     setInfoMessage('');
 
-    axios.post(`${API_URL}/auth/resend-verification`, {
+    api.post('/auth/resend-verification', {
       email: formData.email
     }).then((response) => {
       setInfoMessage(response.data.message || 'Verification email sent successfully.');

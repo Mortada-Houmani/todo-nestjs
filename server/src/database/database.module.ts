@@ -12,9 +12,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         autoLoadEntities: true,
         synchronize: true,
         logging: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ssl: config.get<string>('DATABASE_URL')?.includes('localhost') || config.get<string>('DATABASE_URL')?.includes('@postgres:') 
+          ? false 
+          : { rejectUnauthorized: false },
       }),
     }),
   ],

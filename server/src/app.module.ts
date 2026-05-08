@@ -7,6 +7,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     TasksModule,
   ],
+  controllers: [HealthController],
   providers: [
     {
       provide: APP_GUARD,
