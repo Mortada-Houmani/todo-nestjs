@@ -42,7 +42,7 @@ resource "aws_lb_target_group" "backend" {
 
   health_check {
     enabled             = true
-    path                = "/health"    # must match the endpoint in NestJS
+    path                = "/api/health"    # must match the endpoint in NestJS
     port                = "traffic-port"
     protocol            = "HTTP"
     healthy_threshold   = 2

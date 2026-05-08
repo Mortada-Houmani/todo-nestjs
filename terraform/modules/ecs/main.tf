@@ -131,7 +131,7 @@ resource "aws_ecs_task_definition" "backend" {
 
     # Container-level health check — ECS marks tasks unhealthy if this fails
     healthCheck = {
-      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval    = 30
       timeout     = 5
       retries     = 3
