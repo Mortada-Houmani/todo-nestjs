@@ -111,6 +111,7 @@ module "cloudfront" {
   environment         = var.environment
   s3_bucket_id        = module.frontend.bucket_id
   s3_bucket_domain    = module.frontend.bucket_regional_domain
+  alb_dns_name        = module.alb.dns_name
   acm_certificate_arn = var.acm_certificate_arn # must be in us-east-1 for CloudFront
   aliases             = var.frontend_domain_aliases
 }

@@ -11,6 +11,12 @@ variable "aliases" {
   default = []
 }
 
+variable "alb_dns_name" {
+  type        = string
+  description = "The DNS name of the ALB to route API requests to"
+}
+
+
 output "domain_name" {
   description = "The CloudFront distribution domain name (e.g. abc123.cloudfront.net)."
   value       = aws_cloudfront_distribution.frontend.domain_name
