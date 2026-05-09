@@ -62,7 +62,6 @@ jobs:
           npm ci
           npm run build
         env:
-          # Use your new CloudFront or ALB URL here if needed by the frontend
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Configure AWS credentials

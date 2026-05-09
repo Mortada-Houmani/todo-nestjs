@@ -8,7 +8,7 @@ import { TasksService } from './tasks.service';
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly tasksService: TasksService) { }
 
   @Get()
   async list(@Req() req: Request & { user?: { userId: number } }, @Query('query') query?: string) {

@@ -1,60 +1,82 @@
 # Todo App — Full-Stack AWS Deployment 
 
-A production-ready Todo application built with **NestJS** and **React**, deployed on a **AWS Infrastructure** using **Terraform** and **GitHub Actions**.
+A production-ready Todo application built with **NestJS** and **React**, deployed on a highly available **AWS Infrastructure** using **Terraform** and **GitHub Actions**.
 
 ---
 
-![Home Screenshot](screenshot.jpg)
+##  Architecture Overview
 
+The application is hosted on AWS using a secure, multi-tier networking setup.
+
+![AWS Architecture Diagram](screenshots/aws-diagram.jpg)
+
+
+
+### Global Delivery (CloudFront)
+Requests are served through **Amazon CloudFront**, providing low-latency delivery and SSL termination.
+
+![CloudFront Console](screenshots/cloudfront.png)
+
+### Load Balancing (ALB)
+The **Application Load Balancer** handles API routing and health checks for the backend containers.
+
+![ALB Console](screenshots/alb.png)
+
+### Container Orchestration (ECS Fargate)
+The NestJS backend runs on **Amazon ECS** with **Fargate**, providing serverless container execution.
+
+![ECS Console](screenshots/ecs.png)
+
+### Database (RDS PostgreSQL)
+Data is stored in a managed **Amazon RDS** instance within a private subnet.
+
+![RDS Console](screenshots/rds.png)
+
+---
+
+## CI/CD Pipeline (GitHub Actions)
+
+We use automated workflows for continuous integration and deployment.
+
+### Backend Deployment
+Builds Docker images, pushes to ECR, and updates the ECS service.
+
+![Backend Actions](screenshots/actions-backend.png)
+
+### Frontend Deployment
+Builds the React app, syncs to S3, and invalidates the CloudFront cache.
+
+![Frontend Actions](screenshots/actions-frontend.png)
 
 ---
 
-## Architecture
+## Documentation & Setup
 
-The application is hosted on AWS using modern cloud-native services:
+> [!TIP]
+> For a deep dive into the infrastructure and step-by-step setup, see the **[Cloud Deployment Guide](./CLOUD_DEPLOYMENT.md)**.
 
-- **Frontend:** React application hosted on **Amazon S3** and served globally via **Amazon CloudFront** (CDN).
-- **Backend:** NestJS API running in **Docker** containers on **Amazon ECS (Fargate)**.
-- **Database:** **Amazon RDS (PostgreSQL)** in a private subnet.
-- **Networking:** Custom **VPC** with public/private subnets and an **Application Load Balancer** (ALB) acting as an internal entry point for CloudFront.
-- **Proxy:** CloudFront serves both the frontend and the API (under `/api/*`), solving **CORS** and **Mixed Content** issues automatically.
+### API Documentation
+Interactive documentation is available via **Swagger**:
+- **Live URL:** [https://phoenitech.store/docs](https://phoenitech.store/docs)
 
----
-
-## CI/CD Pipeline
-
-The project uses **GitHub Actions** for fully automated deployments.
-
-### Backend Workflow:
-1. Builds a production Docker image.
-2. Pushes the image to **Amazon ECR**.
-3. Triggers an **ECS Service Update** to roll out the new version.
-
-### Frontend Workflow:
-1. Compiles the React application (Vite).
-2. Syncs the build files to the **S3 Bucket**.
-3. **Invalidates the CloudFront Cache** so users see the latest changes instantly.
-
----
- 
-
-## Infrastructure (Terraform)
-
-The infrastructure is managed as code using **Terraform**.
-
+### Project Structure
+```text
+├── client/              # React frontend (Vite)
+├── server/              # NestJS backend (API)
+├── terraform/           # Infrastructure as Code (AWS)
+├── screenshots/         # Infrastructure documentation images
+└── README.md            # Main documentation
+```
 
 ---
 
 ## Features
-
 - Full CRUD Task Management
 - Pomodoro Timer integration
-- Secure with JWT Authentication
+- Secure JWT Authentication
 - Email verification system
 - HTTPS/TLS encryption everywhere
-- Fully containerized backend
+- Fully containerized architecture
 
----
+![Main Screenshot](screenshots/screenshot.jpg)
 
-![Login Screenshot](login.jpg)
-![Signup Screenshot](singup.jpg)
