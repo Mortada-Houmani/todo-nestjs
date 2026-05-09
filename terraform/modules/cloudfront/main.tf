@@ -157,7 +157,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none"   # no geographic blocking
+      restriction_type = "none"   
     }
   }
 

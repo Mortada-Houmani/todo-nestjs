@@ -1,0 +1,29 @@
+# ==============================================================================
+# terraform.tfvars.example
+# Copy this file to terraform.tfvars and fill in your real values.
+# NEVER commit terraform.tfvars to git.
+# ==============================================================================
+
+aws_region  = "eu-central-1"
+project     = "todo"
+environment = "production"
+
+# Database
+db_name     = "todoapp"
+db_username = "postgres"
+db_password = "your_secure_password"
+
+# JWT
+jwt_secret       = "your_jwt_secret"
+jwt_email_secret = "your_email_jwt_secret"
+
+# SMTP / Gmail
+mail_host = "smtp.gmail.com"
+mail_port = 587
+mail_user = "your_email@gmail.com"
+mail_pass = "your_app_password"
+mail_from = "Todo App <your_email@gmail.com>"
+
+# Custom Domain (Leave empty if not using a custom domain)
+acm_certificate_arn     = ""
+frontend_domain_aliases = []

@@ -14,16 +14,11 @@
 # ------------------------------------------------------------------------------
 resource "aws_lb" "main" {
   name               = "${var.project}-${var.environment}-alb"
-  internal           = false         # internet-facing
+  internal           = false        
   load_balancer_type = "application"
   security_groups    = [var.alb_sg_id]
-  subnets            = var.public_subnet_ids  # must be public subnets
+  subnets            = var.public_subnet_ids 
 
-  # Enable access logs to S3 (optional — uncomment to enable)
-  # access_logs {
-  #   bucket  = "my-alb-logs-bucket"
-  #   enabled = true
-  # }
 
   tags = { Environment = var.environment }
 }
@@ -38,18 +33,18 @@ resource "aws_lb_target_group" "backend" {
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
-  target_type = "ip"   # required for Fargate (tasks have an IP, not an EC2 ID)
+  target_type = "ip"  
 
   health_check {
     enabled             = true
-    path                = "/api/health"    # must match the endpoint in NestJS
+    path                = "/api/health" 
     port                = "traffic-port"
     protocol            = "HTTP"
     healthy_threshold   = 2
     unhealthy_threshold = 3
     timeout             = 5
     interval            = 30
-    matcher             = "200"        # expect HTTP 200 OK
+    matcher             = "200"        
   }
 
   tags = { Environment = var.environment }
@@ -70,10 +65,9 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# ------------------------------------------------------------------------------
+
 # HTTPS Listener (Port 443)
-# Created only if a valid ACM certificate is provided.
-# ------------------------------------------------------------------------------
+
 resource "aws_lb_listener" "https" {
   count             = var.certificate_arn != "" ? 1 : 0
   load_balancer_arn = aws_lb.main.arn
