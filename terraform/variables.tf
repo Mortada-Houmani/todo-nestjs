@@ -1,7 +1,6 @@
 # ==============================================================================
 # variables.tf — All input variables with types, defaults, and descriptions.
 #
-# Override these values in terraform.tfvars (never commit that file to git).
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -104,7 +103,7 @@ CloudFront requires the cert to be in us-east-1, even if the rest of the
 infrastructure is in another region.
 EOT
   type        = string
-  default     = ""   # leave empty to skip HTTPS on ALB / CloudFront
+  default     = ""
 }
 
 variable "frontend_domain_aliases" {

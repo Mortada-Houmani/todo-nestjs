@@ -1,5 +1,5 @@
 {
-  "name": "my-react-app",
+  "name": "todo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint .", 
     "preview": "vite preview"
   },
   "dependencies": {
