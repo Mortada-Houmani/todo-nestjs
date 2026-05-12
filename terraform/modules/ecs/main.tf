@@ -1,24 +1,6 @@
-# ==============================================================================
-# modules/ecs/main.tf
-#
-# Runs the NestJS backend as a serverless container on AWS Fargate.
-#
-# Resources created:
-#   • ECS Cluster
-#   • IAM roles (execution + task)
-#   • CloudWatch Log Group
-#   • Task Definition (container spec, env vars, resource limits)
-#   • ECS Service (keeps N copies of the task running behind the ALB)
-# ==============================================================================
-
-# ------------------------------------------------------------------------------
-# ECS Cluster
-# Fargate clusters have no EC2 instances to manage — AWS handles the compute.
-# ------------------------------------------------------------------------------
 resource "aws_ecs_cluster" "main" {
   name = "${var.project}-${var.environment}-cluster"
 
-  # Enable Container Insights for CloudWatch metrics (CPU, memory per task)
   setting {
     name  = "containerInsights"
     value = "enabled"
@@ -27,11 +9,6 @@ resource "aws_ecs_cluster" "main" {
   tags = { Environment = var.environment }
 }
 
-# ------------------------------------------------------------------------------
-# IAM — Execution Role
-# Grants ECS the permissions it needs to pull the image from ECR and write
-# logs to CloudWatch on behalf of your task.
-# ------------------------------------------------------------------------------
 resource "aws_iam_role" "ecs_execution" {
   name = "${var.project}-${var.environment}-ecs-execution-role"
 
@@ -45,17 +22,11 @@ resource "aws_iam_role" "ecs_execution" {
   })
 }
 
-# Attach the AWS managed policy — covers ECR pull + CloudWatch Logs
 resource "aws_iam_role_policy_attachment" "ecs_execution" {
   role       = aws_iam_role.ecs_execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# ------------------------------------------------------------------------------
-# IAM — Task Role
-# The role assumed by the running container itself.
-# Add additional policies here if the app needs S3, SQS, etc.
-# ------------------------------------------------------------------------------
 resource "aws_iam_role" "ecs_task" {
   name = "${var.project}-${var.environment}-ecs-task-role"
 
@@ -69,11 +40,6 @@ resource "aws_iam_role" "ecs_task" {
   })
 }
 
-# ------------------------------------------------------------------------------
-# CloudWatch Log Group
-# Stores stdout/stderr from the NestJS container.
-# Logs expire after 30 days to keep costs low.
-# ------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "backend" {
   name              = "/ecs/${var.project}-${var.environment}-backend"
   retention_in_days = 30
@@ -81,16 +47,12 @@ resource "aws_cloudwatch_log_group" "backend" {
   tags = { Environment = var.environment }
 }
 
-# ------------------------------------------------------------------------------
-# Task Definition
-# Describes the container: image, CPU/memory, port mapping, env vars, logging.
-# ------------------------------------------------------------------------------
 resource "aws_ecs_task_definition" "backend" {
   family                   = "${var.project}-${var.environment}-backend"
-  network_mode             = "awsvpc"    # required for Fargate
+  network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"       # 0.25 vCPU — increase if needed
-  memory                   = "512"       # MB
+  cpu                      = "256"
+  memory                   = "512"
 
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -104,7 +66,6 @@ resource "aws_ecs_task_definition" "backend" {
       protocol      = "tcp"
     }]
 
-    # All secrets passed as environment variables (not baked into the image)
     environment = [
       { name = "NODE_ENV",         value = "production" },
       { name = "PORT",             value = "3000" },
@@ -119,7 +80,6 @@ resource "aws_ecs_task_definition" "backend" {
       { name = "MAIL_FROM",        value = var.mail_from },
     ]
 
-    # Send logs to CloudWatch
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -129,40 +89,31 @@ resource "aws_ecs_task_definition" "backend" {
       }
     }
 
-    # Container-level health check — ECS marks tasks unhealthy if this fails
     healthCheck = {
       command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval    = 30
       timeout     = 5
       retries     = 3
-      startPeriod = 60  # seconds to wait before starting health checks
+      startPeriod = 60
     }
   }])
 }
 
-# ------------------------------------------------------------------------------
-# ECS Service
-# Keeps the desired number of task replicas running.
-# Registers new tasks with the ALB target group before removing old ones
-# (rolling deployment with zero downtime).
-# ------------------------------------------------------------------------------
 resource "aws_ecs_service" "backend" {
   name            = "${var.project}-${var.environment}-backend-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.backend.arn
-  desired_count   = 1       # increase to 2+ for production high-availability
+  desired_count   = 1
   launch_type     = "FARGATE"
 
-  # Rolling update settings — replace at most 100%, keep at least 100% healthy
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
 
   network_configuration {
     subnets          = var.subnet_ids
     security_groups  = [var.ecs_sg_id]
-    assign_public_ip = true   # Required for internet access without a NAT Gateway
+    assign_public_ip = true
   }
-
 
   load_balancer {
     target_group_arn = var.target_group_arn
@@ -170,7 +121,6 @@ resource "aws_ecs_service" "backend" {
     container_port   = 3000
   }
 
-  # Ensure IAM role policy is attached before service creation
   depends_on = [aws_iam_role_policy_attachment.ecs_execution]
 
   tags = { Environment = var.environment }

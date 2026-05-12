@@ -1,16 +1,7 @@
-# ==============================================================================
-# main.tf — Root module: wires together all sub-modules
-# ==============================================================================
-
-# Configure the AWS provider. Region and credentials come from variables so
-# this file never contains secrets.
 provider "aws" {
   region = var.aws_region
 }
 
-# --------------------------------------------------------------------------
-# Networking — VPC, subnets, gateways, route tables
-# --------------------------------------------------------------------------
 module "networking" {
   source = "./modules/networking"
 
@@ -19,9 +10,6 @@ module "networking" {
   aws_region  = var.aws_region
 }
 
-# --------------------------------------------------------------------------
-# Security Groups — controls inbound/outbound traffic per service
-# --------------------------------------------------------------------------
 module "security_groups" {
   source = "./modules/security_groups"
 
@@ -30,9 +18,6 @@ module "security_groups" {
   vpc_id      = module.networking.vpc_id
 }
 
-# --------------------------------------------------------------------------
-# RDS — managed PostgreSQL database in a private subnet
-# --------------------------------------------------------------------------
 module "rds" {
   source = "./modules/rds"
 
@@ -45,9 +30,6 @@ module "rds" {
   rds_sg_id          = module.security_groups.rds_sg_id
 }
 
-# --------------------------------------------------------------------------
-# ECR — private Docker image registry for the backend container
-# --------------------------------------------------------------------------
 module "ecr" {
   source = "./modules/ecr"
 
@@ -55,9 +37,6 @@ module "ecr" {
   environment = var.environment
 }
 
-# --------------------------------------------------------------------------
-# ECS — Fargate cluster, task definition, and service for the backend
-# --------------------------------------------------------------------------
 module "ecs" {
   source = "./modules/ecs"
 
@@ -79,10 +58,6 @@ module "ecs" {
   target_group_arn   = module.alb.target_group_arn
 }
 
-
-# --------------------------------------------------------------------------
-# ALB — Application Load Balancer routes HTTPS traffic to ECS tasks
-# --------------------------------------------------------------------------
 module "alb" {
   source = "./modules/alb"
 
@@ -93,9 +68,6 @@ module "alb" {
   alb_sg_id         = module.security_groups.alb_sg_id
 }
 
-# --------------------------------------------------------------------------
-# S3 + CloudFront — static hosting for the React frontend
-# --------------------------------------------------------------------------
 module "frontend" {
   source = "./modules/frontend"
 
