@@ -1,5 +1,6 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM public.ecr.aws/docker/library/node:20-alpine AS build
+
 
 WORKDIR /app
 
@@ -19,7 +20,8 @@ RUN npm run build
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Production stage
-FROM node:20-alpine AS production
+FROM public.ecr.aws/docker/library/node:20-alpine AS production
+
 
 # Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
