@@ -36,14 +36,11 @@ jobs:
 
     - name: Lint
       run: npm run lint
-      continue-on-error: true # Continuing if lint script doesn't exist
+      continue-on-error: true 
 
     - name: Build
       run: npm run build
 
-    # Uncomment when tests are implemented
-    # - name: Test
-    #   run: npm run test
 
   docker-build:
     needs: build-and-test
