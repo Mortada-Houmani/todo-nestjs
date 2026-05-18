@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'todo-nest.kereo.online/api',
+  baseURL: import.meta.env.VITE_API_URL || 'todo-api.kereo.online/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
