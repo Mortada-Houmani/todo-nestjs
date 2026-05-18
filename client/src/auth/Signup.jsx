@@ -71,7 +71,8 @@ const SignUp = () => {
     api.post('/auth/register', {
       fullName: formData.name,
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+      confirmPassword: formData.confirmPassword
     })
     .then(() => {
       setSuccessMessage('Account created. Check your email for the verification link before logging in.');

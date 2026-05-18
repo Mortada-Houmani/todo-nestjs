@@ -21,7 +21,11 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const { email, fullName, password } = dto;
+    const { email, fullName, password, confirmPassword } = dto;
+
+    if (password !== confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
 
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
@@ -37,11 +41,10 @@ export class AuthService {
       email,
       fullName,
       password: hashedPassword,
-      
     });
 
     await this.usersService.update(newUser.id, {
-    isEmailVerified: false,
+      isEmailVerified: false,
     });
 
     try {
